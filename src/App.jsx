@@ -349,6 +349,8 @@ function App() {
                   onNoteChange={handleNoteChange}
                   onNoteAdd={handleNoteAdd}
                   onNoteDelete={handleNoteDelete}
+                  musicKey={composition.settings.key}
+                  mode={composition.settings.mode}
                 />
               )}
               

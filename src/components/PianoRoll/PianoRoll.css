@@ -14,17 +14,72 @@
   align-items: center;
 }
 
-.piano-roll-header h3 {
+.piano-roll-title-section h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
   color: white;
 }
 
-.piano-roll-header p {
+.piano-roll-title-section p {
   margin: 0;
   font-size: 0.8rem;
   color: #8b8fa3;
+}
+
+.piano-roll-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.snap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  color: #8b8fa3;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.snap-toggle:hover {
+  color: #a5a9bd;
+}
+
+.snap-toggle input[type="checkbox"] {
+  appearance: none;
+  width: 40px;
+  height: 20px;
+  background: #2a2a4a;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+  border: 2px solid #3a3f5c;
+}
+
+.snap-toggle input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #6b6f83;
+  top: 1px;
+  left: 2px;
+  transition: all 0.3s;
+}
+
+.snap-toggle input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #764ba2;
+}
+
+.snap-toggle input[type="checkbox"]:checked::before {
+  background: white;
+  left: 20px;
 }
 
 .piano-roll-container {

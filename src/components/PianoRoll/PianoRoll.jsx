@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { NOTES } from '../../utils/musicTheory';
+import { NOTES, getScaleNotes } from '../../utils/musicTheory';
 import './PianoRoll.css';
 
 const NOTE_HEIGHT = 16;
@@ -22,12 +22,15 @@ const PianoRoll = ({
   onNoteChange,
   onNoteAdd,
   onNoteDelete,
+  musicKey = 'C',
+  mode = 'major',
 }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [selectedNote, setSelectedNote] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
+  const [snapToScale, setSnapToScale] = useState(true);
 
   const totalBeats = measures * 4;
   const canvasWidth = totalBeats * BEAT_WIDTH + 80;
@@ -49,6 +52,48 @@ const PianoRoll = ({
     }
     return null;
   }, []);
+
+  // Get nearest scale note
+  const getNearestScaleNote = useCallback((noteName, octave) => {
+    if (!snapToScale) {
+      return { note: noteName, octave };
+    }
+
+    const scaleNotes = getScaleNotes(musicKey, mode);
+    const noteIndex = NOTES.indexOf(noteName);
+    
+    // If already in scale, return as is
+    if (scaleNotes.includes(noteName)) {
+      return { note: noteName, octave };
+    }
+
+    // Find nearest scale note
+    let minDistance = 12;
+    let nearestNote = noteName;
+    let nearestOctave = octave;
+
+    for (let octaveOffset = -1; octaveOffset <= 1; octaveOffset++) {
+      const targetOctave = octave + octaveOffset;
+      if (targetOctave < OCTAVE_RANGE.min || targetOctave > OCTAVE_RANGE.max) continue;
+
+      for (const scaleNote of scaleNotes) {
+        const scaleIndex = NOTES.indexOf(scaleNote);
+        
+        // Calculate distance considering octave wrapping
+        let distance = scaleIndex - noteIndex;
+        distance += octaveOffset * 12;
+        
+        const absDistance = Math.abs(distance);
+        if (absDistance < minDistance) {
+          minDistance = absDistance;
+          nearestNote = scaleNote;
+          nearestOctave = targetOctave;
+        }
+      }
+    }
+
+    return { note: nearestNote, octave: nearestOctave };
+  }, [snapToScale, musicKey, mode]);
 
   // Draw piano roll
   useEffect(() => {
@@ -217,10 +262,11 @@ const PianoRoll = ({
     const noteData = getNoteAtY(y);
 
     if (noteData && onNoteChange) {
+      const snappedNote = getNearestScaleNote(noteData.note, noteData.octave);
       onNoteChange(selectedNote.id, {
         ...selectedNote,
-        note: noteData.note,
-        octave: noteData.octave,
+        note: snappedNote.note,
+        octave: snappedNote.octave,
         startBeat: newBeat,
       });
     }
@@ -243,8 +289,20 @@ const PianoRoll = ({
   return (
     <div className="piano-roll">
       <div className="piano-roll-header">
-        <h3>🎹 Piano Roll</h3>
-        <p>Click notes to select, double-click to add, Delete to remove</p>
+        <div className="piano-roll-title-section">
+          <h3>🎹 Piano Roll</h3>
+          <p>Click notes to select, double-click to add, Delete to remove</p>
+        </div>
+        <div className="piano-roll-controls">
+          <label className="snap-toggle">
+            <input
+              type="checkbox"
+              checked={snapToScale}
+              onChange={(e) => setSnapToScale(e.target.checked)}
+            />
+            <span>Snap to scale notes</span>
+          </label>
+        </div>
       </div>
       <div
         className="piano-roll-container"
