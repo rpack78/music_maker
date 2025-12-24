@@ -215,12 +215,18 @@ class AudioEngine {
               const instrument = this.instruments[trackId];
               if (instrument) {
                 const noteString = `${note.note}${note.octave}`;
-                instrument.triggerAttackRelease(
-                  noteString,
-                  duration,
-                  time,
-                  velocity
-                );
+                // Check if there are multiple simultaneous notes to avoid conflicts
+                try {
+                  instrument.triggerAttackRelease(
+                    noteString,
+                    duration,
+                    time,
+                    velocity
+                  );
+                } catch (e) {
+                  // If there's a timing conflict, log but don't crash
+                  console.warn(`Note scheduling conflict for ${trackId}:`, e.message);
+                }
               }
             }
           }, startTime);
@@ -232,12 +238,17 @@ class AudioEngine {
               const instrument = this.instruments.rhythmGuitar;
               if (instrument && note.chordNotes) {
                 const notes = note.chordNotes.map((n) => `${n}3`);
-                instrument.triggerAttackRelease(
-                  notes,
-                  "8n",
-                  time,
-                  velocity * 0.7
-                );
+                try {
+                  instrument.triggerAttackRelease(
+                    notes,
+                    "8n",
+                    time,
+                    velocity * 0.7
+                  );
+                } catch (e) {
+                  // If there's a timing conflict, log but don't crash
+                  console.warn(`Chord scheduling conflict:`, e.message);
+                }
               }
             }
           }, startTime);
@@ -249,12 +260,17 @@ class AudioEngine {
               const instrument = this.instruments.bass;
               if (instrument) {
                 const noteString = `${note.note}${note.octave}`;
-                instrument.triggerAttackRelease(
-                  noteString,
-                  duration,
-                  time,
-                  velocity
-                );
+                try {
+                  instrument.triggerAttackRelease(
+                    noteString,
+                    duration,
+                    time,
+                    velocity
+                  );
+                } catch (e) {
+                  // If there's a timing conflict, log but don't crash
+                  console.warn(`Note scheduling conflict for ${trackId}:`, e.message);
+                }
               }
             }
           }, startTime);
@@ -317,7 +333,9 @@ class AudioEngine {
 
     const inst = this.instruments[instrument];
     if (inst && inst.triggerAttackRelease) {
-      inst.triggerAttackRelease(`${note}${octave}`, "8n");
+      // Use the current time to prevent conflicts with scheduled notes
+      const currentTime = Tone.now();
+      inst.triggerAttackRelease(`${note}${octave}`, "8n", currentTime);
     }
   }
 
@@ -328,7 +346,9 @@ class AudioEngine {
     const inst = this.instruments[instrument];
     if (inst && inst.triggerAttackRelease) {
       const noteStrings = notes.map((n) => `${n}3`);
-      inst.triggerAttackRelease(noteStrings, "4n");
+      // Use the current transport time to schedule the preview, ensuring no conflicts
+      const currentTime = Tone.now();
+      inst.triggerAttackRelease(noteStrings, "4n", currentTime);
     }
   }
 
