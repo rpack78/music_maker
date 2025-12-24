@@ -4,11 +4,11 @@
   "description": "AI Music Generator for Guitar Learning - Generate original compositions algorithmically",
   "private": true,
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "react-scripts": "5.0.1",
-    "tone": "^14.7.77",
-    "uuid": "^9.0.0"
+    "tone": "^15.1.22",
+    "uuid": "^13.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

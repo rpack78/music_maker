@@ -1,5 +1,5 @@
 // Audio Engine using Tone.js for synthesis and playback
-import * as Tone from 'tone';
+import * as Tone from "tone";
 
 class AudioEngine {
   constructor() {
@@ -9,7 +9,7 @@ class AudioEngine {
     this.tempo = 120;
     this.scheduledEvents = [];
     this.onBeatCallback = null;
-    
+
     // Instruments
     this.instruments = {};
     this.masterVolume = null;
@@ -19,13 +19,13 @@ class AudioEngine {
     if (this.isInitialized) return;
 
     await Tone.start();
-    
+
     // Master volume
     this.masterVolume = new Tone.Volume(-6).toDestination();
 
     // Lead Guitar - using synth with guitar-like envelope
     this.instruments.leadGuitar = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'triangle8' },
+      oscillator: { type: "triangle8" },
       envelope: {
         attack: 0.02,
         decay: 0.3,
@@ -37,7 +37,7 @@ class AudioEngine {
 
     // Rhythm Guitar - slightly distorted sound
     this.instruments.rhythmGuitar = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'sawtooth' },
+      oscillator: { type: "sawtooth" },
       envelope: {
         attack: 0.01,
         decay: 0.2,
@@ -49,7 +49,7 @@ class AudioEngine {
 
     // Bass
     this.instruments.bass = new Tone.MonoSynth({
-      oscillator: { type: 'triangle' },
+      oscillator: { type: "triangle" },
       envelope: {
         attack: 0.02,
         decay: 0.3,
@@ -72,7 +72,7 @@ class AudioEngine {
       kick: new Tone.MembraneSynth({
         pitchDecay: 0.05,
         octaves: 6,
-        oscillator: { type: 'sine' },
+        oscillator: { type: "sine" },
         envelope: {
           attack: 0.001,
           decay: 0.4,
@@ -80,9 +80,9 @@ class AudioEngine {
           release: 0.4,
         },
       }).connect(this.masterVolume),
-      
+
       snare: new Tone.NoiseSynth({
-        noise: { type: 'white' },
+        noise: { type: "white" },
         envelope: {
           attack: 0.001,
           decay: 0.2,
@@ -90,7 +90,7 @@ class AudioEngine {
           release: 0.2,
         },
       }).connect(this.masterVolume),
-      
+
       hihat: new Tone.MetalSynth({
         frequency: 250,
         envelope: {
@@ -110,7 +110,7 @@ class AudioEngine {
 
     // Keyboard
     this.instruments.keyboard = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: 'sine' },
+      oscillator: { type: "sine" },
       envelope: {
         attack: 0.05,
         decay: 0.3,
@@ -132,7 +132,7 @@ class AudioEngine {
     const instrument = this.instruments[trackId];
     if (instrument) {
       const dbValue = volume > 0 ? 20 * Math.log10(volume) : -Infinity;
-      if (trackId === 'drums') {
+      if (trackId === "drums") {
         Object.values(instrument).forEach((drum) => {
           drum.volume.value = dbValue - 8;
         });
@@ -145,7 +145,7 @@ class AudioEngine {
   setTrackMuted(trackId, muted) {
     const instrument = this.instruments[trackId];
     if (instrument) {
-      if (trackId === 'drums') {
+      if (trackId === "drums") {
         Object.values(instrument).forEach((drum) => {
           drum.volume.mute = muted;
         });
@@ -158,88 +158,103 @@ class AudioEngine {
   scheduleComposition(composition, tracks, onBeat) {
     this.clearSchedule();
     this.onBeatCallback = onBeat;
-    
+
     const { tempo, measures } = composition.settings;
     this.setTempo(tempo);
-    
+
     const totalBeats = measures * 4;
     const beatDuration = 60 / tempo; // seconds per beat
 
     // Schedule beat callback
     const beatLoop = new Tone.Loop((time) => {
       const beat = Tone.Transport.position;
-      const parts = beat.split(':');
+      const parts = beat.split(":");
       const bars = parseInt(parts[0], 10);
       const beats = parseInt(parts[1], 10);
       const currentBeat = bars * 4 + beats;
-      
+
       Tone.Draw.schedule(() => {
         if (this.onBeatCallback) {
           this.onBeatCallback(currentBeat);
         }
       }, time);
-    }, '4n');
+    }, "4n");
     beatLoop.start(0);
     this.scheduledEvents.push(beatLoop);
 
     // Schedule each track
     Object.entries(tracks).forEach(([trackId, track]) => {
       if (track.muted) return;
-      
+
       track.notes.forEach((note) => {
         const startTime = note.startBeat * beatDuration;
         const duration = note.duration * beatDuration;
         const velocity = (note.velocity || 80) / 127;
 
-        if (trackId === 'drums') {
+        if (trackId === "drums") {
           // Schedule drum hits
           const eventId = Tone.Transport.schedule((time) => {
             if (!track.muted) {
               const drum = this.instruments.drums[note.drum];
               if (drum) {
-                if (note.drum === 'kick') {
-                  drum.triggerAttackRelease('C1', '8n', time, velocity);
-                } else if (note.drum === 'snare') {
-                  drum.triggerAttackRelease('8n', time, velocity);
-                } else if (note.drum === 'hihat') {
-                  drum.triggerAttackRelease('C6', '32n', time, velocity * 0.5);
+                if (note.drum === "kick") {
+                  drum.triggerAttackRelease("C1", "8n", time, velocity);
+                } else if (note.drum === "snare") {
+                  drum.triggerAttackRelease("8n", time, velocity);
+                } else if (note.drum === "hihat") {
+                  drum.triggerAttackRelease("C6", "32n", time, velocity * 0.5);
                 }
               }
             }
           }, startTime);
           this.scheduledEvents.push(eventId);
-        } else if (trackId === 'leadGuitar' || trackId === 'keyboard') {
+        } else if (trackId === "leadGuitar" || trackId === "keyboard") {
           // Schedule melodic notes
           const eventId = Tone.Transport.schedule((time) => {
             if (!track.muted) {
               const instrument = this.instruments[trackId];
               if (instrument) {
                 const noteString = `${note.note}${note.octave}`;
-                instrument.triggerAttackRelease(noteString, duration, time, velocity);
+                instrument.triggerAttackRelease(
+                  noteString,
+                  duration,
+                  time,
+                  velocity
+                );
               }
             }
           }, startTime);
           this.scheduledEvents.push(eventId);
-        } else if (trackId === 'rhythmGuitar') {
+        } else if (trackId === "rhythmGuitar") {
           // Schedule rhythm guitar strums
           const eventId = Tone.Transport.schedule((time) => {
             if (!track.muted) {
               const instrument = this.instruments.rhythmGuitar;
               if (instrument && note.chordNotes) {
                 const notes = note.chordNotes.map((n) => `${n}3`);
-                instrument.triggerAttackRelease(notes, '8n', time, velocity * 0.7);
+                instrument.triggerAttackRelease(
+                  notes,
+                  "8n",
+                  time,
+                  velocity * 0.7
+                );
               }
             }
           }, startTime);
           this.scheduledEvents.push(eventId);
-        } else if (trackId === 'bass') {
+        } else if (trackId === "bass") {
           // Schedule bass notes
           const eventId = Tone.Transport.schedule((time) => {
             if (!track.muted) {
               const instrument = this.instruments.bass;
               if (instrument) {
                 const noteString = `${note.note}${note.octave}`;
-                instrument.triggerAttackRelease(noteString, duration, time, velocity);
+                instrument.triggerAttackRelease(
+                  noteString,
+                  duration,
+                  time,
+                  velocity
+                );
               }
             }
           }, startTime);
@@ -256,7 +271,7 @@ class AudioEngine {
 
   clearSchedule() {
     this.scheduledEvents.forEach((event) => {
-      if (typeof event === 'number') {
+      if (typeof event === "number") {
         Tone.Transport.clear(event);
       } else if (event.dispose) {
         event.dispose();
@@ -269,7 +284,7 @@ class AudioEngine {
     if (!this.isInitialized) {
       await this.initialize();
     }
-    
+
     Tone.Transport.start();
     this.isPlaying = true;
   }
@@ -284,7 +299,7 @@ class AudioEngine {
     Tone.Transport.position = 0;
     this.isPlaying = false;
     this.currentBeat = 0;
-    
+
     if (this.onBeatCallback) {
       this.onBeatCallback(0);
     }
@@ -297,43 +312,43 @@ class AudioEngine {
   }
 
   // Preview a single note
-  previewNote(note, octave, instrument = 'leadGuitar') {
+  previewNote(note, octave, instrument = "leadGuitar") {
     if (!this.isInitialized) return;
-    
+
     const inst = this.instruments[instrument];
     if (inst && inst.triggerAttackRelease) {
-      inst.triggerAttackRelease(`${note}${octave}`, '8n');
+      inst.triggerAttackRelease(`${note}${octave}`, "8n");
     }
   }
 
   // Preview a chord
-  previewChord(notes, instrument = 'rhythmGuitar') {
+  previewChord(notes, instrument = "rhythmGuitar") {
     if (!this.isInitialized) return;
-    
+
     const inst = this.instruments[instrument];
     if (inst && inst.triggerAttackRelease) {
       const noteStrings = notes.map((n) => `${n}3`);
-      inst.triggerAttackRelease(noteStrings, '4n');
+      inst.triggerAttackRelease(noteStrings, "4n");
     }
   }
 
   dispose() {
     this.clearSchedule();
-    
+
     Object.values(this.instruments).forEach((inst) => {
       if (inst.dispose) {
         inst.dispose();
-      } else if (typeof inst === 'object') {
+      } else if (typeof inst === "object") {
         Object.values(inst).forEach((subInst) => {
           if (subInst.dispose) subInst.dispose();
         });
       }
     });
-    
+
     if (this.masterVolume) {
       this.masterVolume.dispose();
     }
-    
+
     this.isInitialized = false;
   }
 }
