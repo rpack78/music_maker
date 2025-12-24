@@ -1,0 +1,89 @@
+.export-panel {
+  background: #1a1a2e;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.export-panel.disabled {
+  opacity: 0.6;
+}
+
+.export-panel h3 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.export-panel.disabled p {
+  color: #8b8fa3;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.export-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.export-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  border: 1px solid #3a3f5c;
+  border-radius: 12px;
+  background: #252a41;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.export-icon {
+  font-size: 1.5rem;
+}
+
+.export-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.export-desc {
+  font-size: 0.7rem;
+  color: #8b8fa3;
+}
+
+.export-btn.midi:hover {
+  border-color: #9b59b6;
+  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.2);
+}
+
+.export-btn.tab:hover {
+  border-color: #e67e22;
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.2);
+}
+
+.export-btn.chords:hover {
+  border-color: #2ecc71;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2);
+}
+
+.export-btn.json:hover {
+  border-color: #3498db;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+}
+
+@media (max-width: 400px) {
+  .export-buttons {
+    grid-template-columns: 1fr;
+  }
+}

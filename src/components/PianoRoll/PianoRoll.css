@@ -1,0 +1,42 @@
+.piano-roll {
+  background: #1a1a2e;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.piano-roll-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #252a41 0%, #1a1a2e 100%);
+  border-bottom: 1px solid #3a3f5c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.piano-roll-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.piano-roll-header p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #8b8fa3;
+}
+
+.piano-roll-container {
+  overflow: auto;
+  max-height: 400px;
+  cursor: crosshair;
+}
+
+.piano-roll-container:focus {
+  outline: none;
+}
+
+.piano-roll-container canvas {
+  display: block;
+}
