@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/music_maker/static/css/main.a8c81301.css",
+    "main.js": "/music_maker/static/js/main.1721f74a.js",
+    "index.html": "/music_maker/index.html",
+    "main.a8c81301.css.map": "/music_maker/static/css/main.a8c81301.css.map",
+    "main.1721f74a.js.map": "/music_maker/static/js/main.1721f74a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.a8c81301.css",
+    "static/js/main.1721f74a.js"
+  ]
+}
