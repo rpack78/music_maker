@@ -186,97 +186,115 @@ class AudioEngine {
     Object.entries(tracks).forEach(([trackId, track]) => {
       if (track.muted) return;
 
-      track.notes.forEach((note) => {
-        const startTime = note.startBeat * beatDuration;
-        const duration = note.duration * beatDuration;
-        const velocity = (note.velocity || 80) / 127;
+      if (trackId === "drums") {
+        // Group drum hits by time to avoid conflicts
+        const drumHitsByTime = new Map();
+        track.notes.forEach((note) => {
+          const startTime = note.startBeat * beatDuration;
+          const key = `${note.drum}-${startTime.toFixed(6)}`;
+          if (!drumHitsByTime.has(key)) {
+            drumHitsByTime.set(key, note);
+          }
+        });
 
-        if (trackId === "drums") {
-          // Schedule drum hits
+        // Schedule deduplicated drum hits
+        drumHitsByTime.forEach((note) => {
+          const startTime = note.startBeat * beatDuration;
+          const velocity = (note.velocity || 80) / 127;
+          
           const eventId = Tone.Transport.schedule((time) => {
             if (!track.muted) {
               const drum = this.instruments.drums[note.drum];
               if (drum) {
-                if (note.drum === "kick") {
-                  drum.triggerAttackRelease("C1", "8n", time, velocity);
-                } else if (note.drum === "snare") {
-                  drum.triggerAttackRelease("8n", time, velocity);
-                } else if (note.drum === "hihat") {
-                  drum.triggerAttackRelease("C6", "32n", time, velocity * 0.5);
-                }
-              }
-            }
-          }, startTime);
-          this.scheduledEvents.push(eventId);
-        } else if (trackId === "leadGuitar" || trackId === "keyboard") {
-          // Schedule melodic notes
-          const eventId = Tone.Transport.schedule((time) => {
-            if (!track.muted) {
-              const instrument = this.instruments[trackId];
-              if (instrument) {
-                const noteString = `${note.note}${note.octave}`;
-                // Check if there are multiple simultaneous notes to avoid conflicts
                 try {
-                  instrument.triggerAttackRelease(
-                    noteString,
-                    duration,
-                    time,
-                    velocity
-                  );
+                  if (note.drum === "kick") {
+                    drum.triggerAttackRelease("C1", "8n", time, velocity);
+                  } else if (note.drum === "snare") {
+                    drum.triggerAttackRelease("8n", time, velocity);
+                  } else if (note.drum === "hihat") {
+                    drum.triggerAttackRelease("C6", "32n", time, velocity * 0.5);
+                  }
                 } catch (e) {
-                  // If there's a timing conflict, log but don't crash
-                  console.warn(`Note scheduling conflict for ${trackId}:`, e.message);
+                  console.warn(`Drum timing conflict for ${note.drum}:`, e.message);
                 }
               }
             }
           }, startTime);
           this.scheduledEvents.push(eventId);
-        } else if (trackId === "rhythmGuitar") {
-          // Schedule rhythm guitar strums
-          const eventId = Tone.Transport.schedule((time) => {
-            if (!track.muted) {
-              const instrument = this.instruments.rhythmGuitar;
-              if (instrument && note.chordNotes) {
-                const notes = note.chordNotes.map((n) => `${n}3`);
-                try {
-                  instrument.triggerAttackRelease(
-                    notes,
-                    "8n",
-                    time,
-                    velocity * 0.7
-                  );
-                } catch (e) {
-                  // If there's a timing conflict, log but don't crash
-                  console.warn(`Chord scheduling conflict:`, e.message);
+        });
+      } else {
+        // Schedule non-drum tracks
+        track.notes.forEach((note) => {
+          const startTime = note.startBeat * beatDuration;
+          const duration = note.duration * beatDuration;
+          const velocity = (note.velocity || 80) / 127;
+
+          if (trackId === "leadGuitar" || trackId === "keyboard") {
+            // Schedule melodic notes
+            const eventId = Tone.Transport.schedule((time) => {
+              if (!track.muted) {
+                const instrument = this.instruments[trackId];
+                if (instrument) {
+                  const noteString = `${note.note}${note.octave}`;
+                  try {
+                    instrument.triggerAttackRelease(
+                      noteString,
+                      duration,
+                      time,
+                      velocity
+                    );
+                  } catch (e) {
+                    console.warn(`Note scheduling conflict for ${trackId}:`, e.message);
+                  }
                 }
               }
-            }
-          }, startTime);
-          this.scheduledEvents.push(eventId);
-        } else if (trackId === "bass") {
-          // Schedule bass notes
-          const eventId = Tone.Transport.schedule((time) => {
-            if (!track.muted) {
-              const instrument = this.instruments.bass;
-              if (instrument) {
-                const noteString = `${note.note}${note.octave}`;
-                try {
-                  instrument.triggerAttackRelease(
-                    noteString,
-                    duration,
-                    time,
-                    velocity
-                  );
-                } catch (e) {
-                  // If there's a timing conflict, log but don't crash
-                  console.warn(`Note scheduling conflict for ${trackId}:`, e.message);
+            }, startTime);
+            this.scheduledEvents.push(eventId);
+          } else if (trackId === "rhythmGuitar") {
+            // Schedule rhythm guitar strums
+            const eventId = Tone.Transport.schedule((time) => {
+              if (!track.muted) {
+                const instrument = this.instruments.rhythmGuitar;
+                if (instrument && note.chordNotes) {
+                  const notes = note.chordNotes.map((n) => `${n}3`);
+                  try {
+                    instrument.triggerAttackRelease(
+                      notes,
+                      "8n",
+                      time,
+                      velocity * 0.7
+                    );
+                  } catch (e) {
+                    console.warn(`Chord scheduling conflict:`, e.message);
+                  }
                 }
               }
-            }
-          }, startTime);
-          this.scheduledEvents.push(eventId);
-        }
-      });
+            }, startTime);
+            this.scheduledEvents.push(eventId);
+          } else if (trackId === "bass") {
+            // Schedule bass notes
+            const eventId = Tone.Transport.schedule((time) => {
+              if (!track.muted) {
+                const instrument = this.instruments.bass;
+                if (instrument) {
+                  const noteString = `${note.note}${note.octave}`;
+                  try {
+                    instrument.triggerAttackRelease(
+                      noteString,
+                      duration,
+                      time,
+                      velocity
+                    );
+                  } catch (e) {
+                    console.warn(`Note scheduling conflict for ${trackId}:`, e.message);
+                  }
+                }
+              }
+            }, startTime);
+            this.scheduledEvents.push(eventId);
+          }
+        });
+      }
     });
 
     // Schedule end of composition

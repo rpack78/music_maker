@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getDiatonicChord, NOTES } from '../../utils/musicTheory';
+import { getDiatonicChord, getChordNotes, NOTES } from '../../utils/musicTheory';
 import './ChordProgressionEditor.css';
 
 const CHORD_TYPES = [
@@ -136,12 +136,13 @@ const ChordProgressionEditor = ({
   const handleChordSelect = (root, type) => {
     if (selectedChord && onChordChange) {
       const suffix = CHORD_TYPES.find((t) => t.id === type)?.suffix || '';
+      const chordNotes = getChordNotes(root, type);
       onChordChange(selectedChord.id, {
         ...selectedChord,
         root,
         type,
         name: `${root}${suffix}`,
-        notes: [], // Will be recalculated
+        notes: chordNotes,
       });
     }
     setShowChordPicker(false);

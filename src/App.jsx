@@ -222,14 +222,42 @@ function App() {
     setComposition((prev) => {
       if (!prev) return prev;
       
-      return {
+      const updatedChords = prev.chords.map((c) =>
+        c.id === chordId ? { ...c, ...newChord } : c
+      );
+      
+      // Regenerate rhythm guitar track since it depends on chords
+      const rhythmGuitarNotes = prev.tracks.rhythmGuitar 
+        ? regenerateTrack({ ...prev, chords: updatedChords }, 'rhythmGuitar')
+        : prev.tracks.rhythmGuitar?.notes || [];
+      
+      const updatedComposition = {
         ...prev,
-        chords: prev.chords.map((c) =>
-          c.id === chordId ? { ...c, ...newChord } : c
-        ),
+        chords: updatedChords,
+        tracks: {
+          ...prev.tracks,
+          rhythmGuitar: prev.tracks.rhythmGuitar ? {
+            ...prev.tracks.rhythmGuitar,
+            notes: rhythmGuitarNotes,
+          } : prev.tracks.rhythmGuitar,
+        },
       };
+      
+      // If playing, stop, reschedule, and restart with updated composition
+      if (isPlaying) {
+        const currentPosition = currentBeat;
+        audioEngine.stop();
+        audioEngine.scheduleComposition(updatedComposition, updatedComposition.tracks, (beat) => {
+          setCurrentBeat(beat);
+        });
+        // Seek to current position and restart
+        audioEngine.seek(currentPosition);
+        audioEngine.play();
+      }
+      
+      return updatedComposition;
     });
-  }, []);
+  }, [isPlaying, currentBeat]);
 
   // Cleanup on unmount
   useEffect(() => {
