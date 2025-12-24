@@ -168,7 +168,9 @@ class AudioEngine {
     // Schedule beat callback
     const beatLoop = new Tone.Loop((time) => {
       const beat = Tone.Transport.position;
-      const [bars, beats] = beat.split(':').map(Number);
+      const parts = beat.split(':');
+      const bars = parseInt(parts[0], 10);
+      const beats = parseInt(parts[1], 10);
       const currentBeat = bars * 4 + beats;
       
       Tone.Draw.schedule(() => {
