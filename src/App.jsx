@@ -271,7 +271,7 @@ function App() {
       <header className="app-header">
         <div className="logo">
           <span className="logo-icon">🎸</span>
-          <h1>AI Music Generator</h1>
+          <h1>Music Maker</h1>
         </div>
         <p className="tagline">Create original compositions for guitar learning</p>
       </header>
@@ -370,7 +370,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>🎵 AI Music Generator for Guitar Learning • No AI API needed - runs entirely in your browser</p>
+        <p>🎵 Music Maker • No AI API needed - runs entirely in your browser</p>
       </footer>
     </div>
   );

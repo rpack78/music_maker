@@ -284,7 +284,7 @@ export const generateComposition = (options) => {
   
   if (instruments.leadGuitar) {
     composition.tracks.leadGuitar = {
-      name: 'Lead Guitar',
+      name: 'Lead Gtr',
       instrument: 'leadGuitar',
       muted: false,
       volume: 0.8,
@@ -294,7 +294,7 @@ export const generateComposition = (options) => {
   
   if (instruments.rhythmGuitar) {
     composition.tracks.rhythmGuitar = {
-      name: 'Rhythm Guitar',
+      name: 'Rhythm Gtr',
       instrument: 'rhythmGuitar',
       muted: false,
       volume: 0.7,

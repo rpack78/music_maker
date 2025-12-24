@@ -1,7 +1,7 @@
 {
-  "name": "ai-music-generator",
+  "name": "music-maker",
   "version": "1.0.0",
-  "description": "AI Music Generator for Guitar Learning - Generate original compositions algorithmically",
+  "description": "Music Maker - Generate original compositions algorithmically",
   "private": true,
   "dependencies": {
     "react": "^19.2.3",
