@@ -151,7 +151,6 @@ export const exportToTab = (composition) => {
   // Create tab lines (6 strings)
   const strings = ['e', 'B', 'G', 'D', 'A', 'E'];
   const beatsPerMeasure = 4;
-  const totalBeats = settings.measures * beatsPerMeasure;
   
   // Group notes by measures
   for (let measure = 0; measure < settings.measures; measure++) {
@@ -189,9 +188,9 @@ export const exportToTab = (composition) => {
       }
     }
     
-    tabGrid.forEach((line) => {
+    for (const line of tabGrid) {
       tab += line + '|\n';
-    });
+    }
   }
 
   return tab;

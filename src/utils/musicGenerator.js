@@ -1,7 +1,6 @@
 // Music Generation Engine
 import { v4 as uuidv4 } from 'uuid';
 import {
-  NOTES,
   GENRE_PROGRESSIONS,
   RHYTHM_PATTERNS,
   DRUM_PATTERNS,
